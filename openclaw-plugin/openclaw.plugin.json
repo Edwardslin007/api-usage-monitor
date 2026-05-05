@@ -1,0 +1,12 @@
+{
+  "id": "aicodee-usage-hook",
+  "name": "Aicodee Usage Hook",
+  "description": "Appends API usage info after each agent reply",
+  "activation": {
+    "onStartup": true
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false
+  }
+}

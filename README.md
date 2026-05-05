@@ -268,7 +268,12 @@ api-usage-monitor/
 ├── 最新测试报告.md            # 测试报告
 ├── 效果演示总结.md            # 效果演示总结
 ├── .gitignore                 # Git忽略文件
-└── LICENSE                    # MIT许可证
+├── LICENSE                    # MIT许可证
+└── openclaw-plugin/           # OpenClaw Telegram 用量 Hook 插件
+    ├── index.js               # 插件主文件
+    ├── openclaw.plugin.json   # 插件清单
+    ├── package.json           # 包配置
+    └── README.md              # 插件说明（含踩坑记录）
 ```
 
 ---
@@ -339,6 +344,39 @@ pip3 install browser_cookie3
 ## 📄 许可证
 
 本项目使用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+
+---
+
+## 🔌 OpenClaw Telegram 插件
+
+本项目还包含一个 OpenClaw 插件，可以在 Telegram 每条 AI 回复末尾自动追加用量信息。
+
+### 效果
+
+```
+你的回复内容...
+
+> _📊 剩余$25.40（85%），距离额度重置剩余2小时43分。套餐剩余16天，至 05/22/2026, 10:30 AM_
+```
+
+### 安装
+
+1. 将 `openclaw-plugin/` 目录复制到 `~/.openclaw/extensions/aicodee-usage-hook/`
+2. 在 `~/.openclaw/openclaw.json` 中启用插件（详见 [openclaw-plugin/README.md](openclaw-plugin/README.md)）
+3. **关键**：在 Telegram 配置中关闭流式预览：`"streaming": { "mode": "off" }`
+4. 重启 Gateway：`openclaw gateway restart`
+
+### 踩坑记录
+
+**问题**：`message_sending` hook 永远不会触发。
+
+**根因**：Telegram 默认启用流式预览模式（`streaming: "partial"`），AI 回复通过 `editMessageTelegram` 实时编辑同一条消息，完全绕过 `deliverReplies` 函数。而 `message_sending` hook 在 `deliverReplies` 内部触发，所以永远不会被调用。
+
+**解决**：关闭流式预览（`streaming: { "mode": "off" }`），使回复走标准 `deliverReplies` 路径。
+
+**代价**：Telegram 不再有打字流式效果，回复一次性完整显示。
+
+详细说明见 [openclaw-plugin/README.md](openclaw-plugin/README.md)。
 
 ---
 
